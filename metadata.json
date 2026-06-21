@@ -1,0 +1,12 @@
+{
+  "name": "Show Desktop Hot Corner",
+  "description": "Minimise all windows by moving your mouse to a configurable screen corner. Trigger again to restore them.",
+  "uuid": "show-desktop-hot-corner@jvjacq.com",
+  "version": 1,
+  "settings-schema": "org.gnome.shell.extensions.show-desktop-hot-corner",
+  "shell-version": ["45", "46", "47", "48", "49", "50"],
+  "url": "https://github.com/jvjacq/show-desktop-hot-corner",
+  "donations": {
+    "buymeacoffee": "jvjacq"
+  }
+}
