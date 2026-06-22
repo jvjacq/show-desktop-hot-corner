@@ -1,5 +1,4 @@
 import St from 'gi://St';
-import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -16,27 +15,20 @@ export default class ShowDesktopHotCorner extends Extension {
             height: 1,
         });
 
-        this._corner.connectObject(
-            'enter-event', () => this._trigger(),
-            this
-        );
+        this._corner.connectObject('enter-event', () => this._trigger(), this);
+        Main.layoutManager.connectObject('monitors-changed', () => this._updatePosition(), this);
+        this._settings.connectObject('changed::corner', () => this._updatePosition(), this);
 
-        Main.layoutManager.connectObject(
-            'monitors-changed', () => this._updatePosition(),
-            this
-        );
+        if (Main.layoutManager._startingUp)
+            Main.layoutManager.connectObject('startup-complete', () => this._addCorner(), this);
+        else
+            this._addCorner();
+    }
 
-        this._settings.connectObject(
-            'changed::corner', () => this._updatePosition(),
-            this
-        );
-
-        this._initId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            Main.layoutManager.addChrome(this._corner);
-            this._updatePosition();
-            this._initId = null;
-            return GLib.SOURCE_REMOVE;
-        });
+    _addCorner() {
+        global.stage.add_child(this._corner);
+        global.stage.set_child_above_sibling(this._corner, null);
+        this._updatePosition();
     }
 
     _trigger() {
@@ -80,17 +72,12 @@ export default class ShowDesktopHotCorner extends Extension {
     }
 
     disable() {
-        if (this._initId) {
-            GLib.source_remove(this._initId);
-            this._initId = null;
-        }
-
         this._settings?.disconnectObject(this);
         Main.layoutManager.disconnectObject(this);
 
         if (this._corner) {
             this._corner.disconnectObject(this);
-            Main.layoutManager.removeChrome(this._corner);
+            global.stage.remove_child(this._corner);
             this._corner.destroy();
             this._corner = null;
         }
