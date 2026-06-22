@@ -32,7 +32,14 @@ export default class ShowDesktopHotCorner extends Extension {
             this
         );
 
-        this._updatePosition();
+        if (Main.layoutManager._startingUp) {
+            Main.layoutManager.connectObject(
+                'startup-complete', () => this._updatePosition(),
+                this
+            );
+        } else {
+            this._updatePosition();
+        }
     }
 
     _trigger() {
